@@ -1,0 +1,6 @@
+#!/bin/sh
+echo "Running Dart format check..."
+dart format --set-exit-if-changed .
+
+echo "Running Dart analyzer..."
+dart analyze
