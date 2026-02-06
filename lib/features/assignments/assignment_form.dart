@@ -35,9 +35,11 @@ class _AssignmentFormState extends State<AssignmentForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existingAssignment == null
-            ? 'Create New Assignment'
-            : 'Edit Assignment'),
+        title: Text(
+          widget.existingAssignment == null
+              ? 'Create New Assignment'
+              : 'Edit Assignment',
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -51,8 +53,7 @@ class _AssignmentFormState extends State<AssignmentForm> {
                   labelText: 'Assignment Title *',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) =>
-                (value == null || value.isEmpty)
+                validator: (value) => (value == null || value.isEmpty)
                     ? 'Please enter assignment title'
                     : null,
               ),
