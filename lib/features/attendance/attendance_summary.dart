@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shared/theme/colors.dart';
 
 class AttendanceIndicator extends StatelessWidget {
-  const AttendanceIndicator({
-    super.key,
-    required this.percentage,
-  });
+  const AttendanceIndicator({super.key, required this.percentage});
 
   final double percentage;
 
@@ -21,7 +18,9 @@ class AttendanceIndicator extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '${percentage.toStringAsFixed(0)}%',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(color: color),
         ),
       ],
     );

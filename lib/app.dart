@@ -51,9 +51,7 @@ class _AluStudentAssistantAppState extends State<AluStudentAssistantApp> {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
       cardTheme: CardThemeData(
         color: Colors.white,
@@ -91,9 +89,9 @@ class _HomeShellState extends State<_HomeShell> {
   Future<void> _handleAddPressed() async {
     final state = AppStateScope.of(context);
     if (_index == 1) {
-      final created = await Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const AssignmentFormScreen()),
-      );
+      final created = await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const AssignmentFormScreen()));
       if (!mounted || created == null) return;
       state.addAssignment(created);
     } else if (_index == 2) {
@@ -115,13 +113,11 @@ class _HomeShellState extends State<_HomeShell> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          switch (_index) {
-            0 => 'Dashboard',
-            1 => 'Assignments',
-            _ => 'Schedule',
-          },
-        ),
+        title: Text(switch (_index) {
+          0 => 'Dashboard',
+          1 => 'Assignments',
+          _ => 'Schedule',
+        }),
         actions: [
           if (_index == 1 || _index == 2)
             IconButton(
@@ -132,18 +128,24 @@ class _HomeShellState extends State<_HomeShell> {
         ],
       ),
       body: SafeArea(
-        child: IndexedStack(
-          index: _index,
-          children: screens,
-        ),
+        child: IndexedStack(index: _index, children: screens),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (idx) => setState(() => _index = idx),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          NavigationDestination(icon: Icon(Icons.checklist), label: 'Assignments'),
-          NavigationDestination(icon: Icon(Icons.calendar_month), label: 'Schedule'),
+          NavigationDestination(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.checklist),
+            label: 'Assignments',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_month),
+            label: 'Schedule',
+          ),
         ],
       ),
     );

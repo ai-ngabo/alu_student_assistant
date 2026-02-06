@@ -26,7 +26,9 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.initial?.title ?? '');
-    _courseController = TextEditingController(text: widget.initial?.course ?? '');
+    _courseController = TextEditingController(
+      text: widget.initial?.course ?? '',
+    );
     _dueDate = widget.initial?.dueDate;
     _priority = (widget.initial?.priority.trim().isEmpty ?? true)
         ? 'Low'
@@ -65,7 +67,9 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
   Widget build(BuildContext context) {
     final isEdit = widget.initial != null;
     return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? 'Edit Assignment' : 'New Assignment')),
+      appBar: AppBar(
+        title: Text(isEdit ? 'Edit Assignment' : 'New Assignment'),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),

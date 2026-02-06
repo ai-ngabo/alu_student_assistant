@@ -33,13 +33,13 @@ class Assignment {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'dueDate': dueDate.toIso8601String(),
-        'course': course,
-        'priority': priority,
-        'isCompleted': isCompleted,
-      };
+    'id': id,
+    'title': title,
+    'dueDate': dueDate.toIso8601String(),
+    'course': course,
+    'priority': priority,
+    'isCompleted': isCompleted,
+  };
 
   static Assignment fromJson(Map<String, dynamic> json) {
     return Assignment(

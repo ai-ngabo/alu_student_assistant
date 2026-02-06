@@ -19,7 +19,9 @@ class AssignmentListScreen extends StatelessWidget {
 
   Future<void> _edit(BuildContext context, Assignment assignment) async {
     final updated = await Navigator.of(context).push<Assignment>(
-      MaterialPageRoute(builder: (_) => AssignmentFormScreen(initial: assignment)),
+      MaterialPageRoute(
+        builder: (_) => AssignmentFormScreen(initial: assignment),
+      ),
     );
     if (updated == null || !context.mounted) return;
     AppStateScope.of(context).updateAssignment(updated);
@@ -87,10 +89,10 @@ class AssignmentListScreen extends StatelessWidget {
         final color = a.isCompleted
             ? AluColors.success
             : (a.priority == 'High'
-                ? AluColors.danger
-                : (a.priority == 'Medium'
-                    ? AluColors.warning
-                    : AluColors.primary));
+                  ? AluColors.danger
+                  : (a.priority == 'Medium'
+                        ? AluColors.warning
+                        : AluColors.primary));
         return Card(
           child: ListTile(
             title: Text(

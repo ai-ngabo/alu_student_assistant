@@ -4,20 +4,20 @@ enum SessionType { classSession, masterySession, studyGroup, pslMeeting }
 
 extension SessionTypeLabel on SessionType {
   String get label => switch (this) {
-        SessionType.classSession => 'Class',
-        SessionType.masterySession => 'Mastery Session',
-        SessionType.studyGroup => 'Study Group',
-        SessionType.pslMeeting => 'PSL Meeting',
-      };
+    SessionType.classSession => 'Class',
+    SessionType.masterySession => 'Mastery Session',
+    SessionType.studyGroup => 'Study Group',
+    SessionType.pslMeeting => 'PSL Meeting',
+  };
 }
 
 enum AttendanceStatus { present, absent }
 
 extension AttendanceStatusLabel on AttendanceStatus {
   String get label => switch (this) {
-        AttendanceStatus.present => 'Present',
-        AttendanceStatus.absent => 'Absent',
-      };
+    AttendanceStatus.present => 'Present',
+    AttendanceStatus.absent => 'Absent',
+  };
 }
 
 class AcademicSession {
@@ -67,17 +67,17 @@ class AcademicSession {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'date': date.toIso8601String(),
-        'startHour': startTime.hour,
-        'startMinute': startTime.minute,
-        'endHour': endTime.hour,
-        'endMinute': endTime.minute,
-        'location': location,
-        'type': type.name,
-        'attendance': attendance?.name,
-      };
+    'id': id,
+    'title': title,
+    'date': date.toIso8601String(),
+    'startHour': startTime.hour,
+    'startMinute': startTime.minute,
+    'endHour': endTime.hour,
+    'endMinute': endTime.minute,
+    'location': location,
+    'type': type.name,
+    'attendance': attendance?.name,
+  };
 
   static AcademicSession fromJson(Map<String, dynamic> json) {
     return AcademicSession(
@@ -102,5 +102,6 @@ class AcademicSession {
     );
   }
 
-  static String generateId() => DateTime.now().microsecondsSinceEpoch.toString();
+  static String generateId() =>
+      DateTime.now().microsecondsSinceEpoch.toString();
 }

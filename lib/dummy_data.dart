@@ -49,7 +49,7 @@ class DummyData {
   static List<Session> getDummySessions() {
     final today = DateTime.now();
     final tomorrow = today.add(Duration(days: 1));
-    
+
     return [
       Session(
         id: '1',
@@ -107,10 +107,10 @@ class DummyData {
   // Calculate attendance percentage
   static double calculateAttendance(List<Session> sessions) {
     if (sessions.isEmpty) return 0.0;
-    
+
     int totalSessions = sessions.length;
     int attendedSessions = sessions.where((s) => s.isPresent).length;
-    
+
     return (attendedSessions / totalSessions) * 100;
   }
 
@@ -118,13 +118,12 @@ class DummyData {
   static List<Assignment> getUpcomingAssignments(List<Assignment> assignments) {
     final now = DateTime.now();
     final weekFromNow = now.add(Duration(days: 7));
-    
+
     return assignments.where((assignment) {
       return !assignment.isCompleted &&
-             assignment.dueDate.isAfter(now) &&
-             assignment.dueDate.isBefore(weekFromNow);
-    }).toList()
-      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+          assignment.dueDate.isAfter(now) &&
+          assignment.dueDate.isBefore(weekFromNow);
+    }).toList()..sort((a, b) => a.dueDate.compareTo(b.dueDate));
   }
 
   // Get today's sessions

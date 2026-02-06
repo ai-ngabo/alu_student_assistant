@@ -81,13 +81,14 @@ class TodaySessionsCard extends StatelessWidget {
             if (sessions.isEmpty)
               Text(
                 'No sessions today.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AluColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AluColors.textSecondary,
+                ),
               )
             else
-              ...sessions.take(4).map(
+              ...sessions
+                  .take(4)
+                  .map(
                     (s) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
@@ -102,9 +103,7 @@ class TodaySessionsCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             s.startTime.format(context),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: AluColors.textSecondary),
                           ),
                         ],
@@ -145,13 +144,14 @@ class DueSoonCard extends StatelessWidget {
             if (assignments.isEmpty)
               Text(
                 'No upcoming deadlines.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AluColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AluColors.textSecondary,
+                ),
               )
             else
-              ...assignments.take(4).map(
+              ...assignments
+                  .take(4)
+                  .map(
                     (a) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
@@ -166,9 +166,7 @@ class DueSoonCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             formatShortDate(a.dueDate),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: AluColors.textSecondary),
                           ),
                         ],

@@ -31,10 +31,7 @@ class AluTextStyles {
         fontWeight: FontWeight.w400,
         color: AluColors.textSecondary,
       ),
-      labelLarge: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
+      labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
     );
   }
 }

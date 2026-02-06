@@ -30,8 +30,9 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.initial?.title ?? '');
-    _locationController =
-        TextEditingController(text: widget.initial?.location ?? '');
+    _locationController = TextEditingController(
+      text: widget.initial?.location ?? '',
+    );
     _date = widget.initial?.date;
     _start = widget.initial?.startTime;
     _end = widget.initial?.endTime;
@@ -58,9 +59,9 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
   void _submit() {
     final timeError = _validateTimeRange();
     if (timeError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(timeError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(timeError)));
       return;
     }
 
@@ -143,13 +144,13 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<SessionType>(
                     value: _type,
-                    decoration: const InputDecoration(labelText: 'Session Type *'),
+                    decoration: const InputDecoration(
+                      labelText: 'Session Type *',
+                    ),
                     items: SessionType.values
                         .map(
-                          (t) => DropdownMenuItem(
-                            value: t,
-                            child: Text(t.label),
-                          ),
+                          (t) =>
+                              DropdownMenuItem(value: t, child: Text(t.label)),
                         )
                         .toList(),
                     onChanged: (t) => setState(() => _type = t ?? _type),
@@ -171,10 +172,9 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
                     const SizedBox(height: 12),
                     Text(
                       'Attendance is edited from the schedule list.',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: AluColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AluColors.textSecondary,
+                      ),
                     ),
                   ],
                 ],

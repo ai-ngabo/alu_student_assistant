@@ -12,14 +12,13 @@ class AttendanceHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
-    final recorded = state.sessions
-        .where((s) => s.attendance != null)
-        .toList()
+    final recorded = state.sessions.where((s) => s.attendance != null).toList()
       ..sort((a, b) => b.date.compareTo(a.date));
 
     final pct = state.attendancePercentage.toStringAsFixed(0);
-    final color =
-        state.isAttendanceBelowThreshold ? AluColors.danger : AluColors.success;
+    final color = state.isAttendanceBelowThreshold
+        ? AluColors.danger
+        : AluColors.success;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Attendance History')),
@@ -38,9 +37,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
             if (recorded.isEmpty)
               const Center(child: Text('No attendance recorded yet.'))
             else
-              ...recorded.map(
-                (s) => _AttendanceTile(session: s),
-              ),
+              ...recorded.map((s) => _AttendanceTile(session: s)),
           ],
         ),
       ),
@@ -65,7 +62,9 @@ class _AttendanceTile extends StatelessWidget {
       child: Card(
         child: ListTile(
           title: Text(session.title),
-          subtitle: Text('${formatShortDate(session.date)} • ${session.type.label}'),
+          subtitle: Text(
+            '${formatShortDate(session.date)} • ${session.type.label}',
+          ),
           trailing: SegmentedButton<AttendanceStatus>(
             showSelectedIcon: false,
             emptySelectionAllowed: true,
@@ -80,19 +79,14 @@ class _AttendanceTile extends StatelessWidget {
               ),
             ],
             selected: status == null ? <AttendanceStatus>{} : {status},
-            onSelectionChanged: (set) =>
-                AppStateScope.of(context).setSessionAttendance(
-              session.id,
-              set.isEmpty ? null : set.first,
-            ),
+            onSelectionChanged: (set) => AppStateScope.of(
+              context,
+            ).setSessionAttendance(session.id, set.isEmpty ? null : set.first),
           ),
           leading: Container(
             width: 10,
             height: 10,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
         ),
       ),

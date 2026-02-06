@@ -20,7 +20,9 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
   DateTime get _weekStart => startOfWeek(_weekAnchor);
 
   void _shiftWeek(int deltaWeeks) {
-    setState(() => _weekAnchor = _weekAnchor.add(Duration(days: deltaWeeks * 7)));
+    setState(
+      () => _weekAnchor = _weekAnchor.add(Duration(days: deltaWeeks * 7)),
+    );
   }
 
   Future<void> _editSession(AcademicSession session) async {
@@ -62,7 +64,8 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
     final state = AppStateScope.of(context);
     final weekStart = _weekStart;
     final weekEnd = endOfWeek(_weekAnchor);
-    final weekLabel = '${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}';
+    final weekLabel =
+        '${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}';
 
     final weekDays = List.generate(7, (i) => weekStart.add(Duration(days: i)));
 
@@ -106,10 +109,9 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
         const SizedBox(height: 24),
         Text(
           'Add sessions from the + button in the top-right.',
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: AluColors.textSecondary),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AluColors.textSecondary),
         ),
       ],
     );
@@ -130,7 +132,7 @@ class _DaySection extends StatelessWidget {
   final void Function(AcademicSession session) onEdit;
   final void Function(AcademicSession session) onDelete;
   final void Function(String sessionId, AttendanceStatus? status)
-      onAttendanceChanged;
+  onAttendanceChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -150,10 +152,9 @@ class _DaySection extends StatelessWidget {
               if (sessions.isEmpty)
                 Text(
                   'No sessions scheduled.',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: AluColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AluColors.textSecondary,
+                  ),
                 )
               else
                 ...sessions.map(

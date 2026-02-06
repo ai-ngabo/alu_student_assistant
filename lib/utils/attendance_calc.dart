@@ -11,7 +11,8 @@ class AttendanceStats {
 
 AttendanceStats calculateAttendanceStats(Iterable<AcademicSession> sessions) {
   final recorded = sessions.where((s) => s.attendance != null).toList();
-  final present =
-      recorded.where((s) => s.attendance == AttendanceStatus.present).length;
+  final present = recorded
+      .where((s) => s.attendance == AttendanceStatus.present)
+      .length;
   return AttendanceStats(recorded: recorded.length, present: present);
 }

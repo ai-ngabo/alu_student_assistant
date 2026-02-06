@@ -17,12 +17,13 @@ class AppState extends ChangeNotifier {
   List<Assignment> assignmentsDueWithinDays(int days, {DateTime? now}) {
     final current = now ?? DateTime.now();
     final end = current.add(Duration(days: days));
-    final items = _assignments
-        .where((a) => !a.isCompleted)
-        .where((a) => !a.dueDate.isBefore(startOfDay(current)))
-        .where((a) => !a.dueDate.isAfter(endOfDay(end)))
-        .toList()
-      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+    final items =
+        _assignments
+            .where((a) => !a.isCompleted)
+            .where((a) => !a.dueDate.isBefore(startOfDay(current)))
+            .where((a) => !a.dueDate.isAfter(endOfDay(end)))
+            .toList()
+          ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
     return items;
   }
 
