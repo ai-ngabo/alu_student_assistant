@@ -10,22 +10,31 @@ class AttendanceSummaryCard extends StatelessWidget {
   const AttendanceSummaryCard({
     super.key,
     required this.percentage,
+    required this.hasRecordedAttendance,
     required this.isBelowThreshold,
     required this.recordedCount,
     required this.onTap,
   });
 
   final double percentage;
+  final bool hasRecordedAttendance;
   final bool isBelowThreshold;
   final int recordedCount;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final pctText = '${percentage.toStringAsFixed(0)}%';
-    final color = isBelowThreshold ? AluColors.danger : AluColors.success;
-    final warning = isBelowThreshold ? ' (below 75%)' : '';
-    final value = '$pctText$warning • $recordedCount recorded';
+    final pctText = hasRecordedAttendance
+        ? '${percentage.toStringAsFixed(0)}%'
+        : 'N/A';
+    final color = hasRecordedAttendance
+        ? (isBelowThreshold ? AluColors.danger : AluColors.success)
+        : AluColors.primary;
+    final warning =
+        hasRecordedAttendance && isBelowThreshold ? ' (below 75%)' : '';
+    final value = hasRecordedAttendance
+        ? '$pctText$warning • $recordedCount recorded'
+        : 'No attendance recorded yet';
 
     return InfoCard(
       title: 'Attendance',
@@ -86,30 +95,30 @@ class TodaySessionsCard extends StatelessWidget {
                 ),
               )
             else
-              ...sessions
-                  .take(4)
-                  .map(
-                    (s) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              s.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            s.startTime.format(context),
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: AluColors.textSecondary),
-                          ),
-                        ],
+              ...sessions.map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          s.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Text(
+                        s.startTime.format(context),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: AluColors.textSecondary),
+                      ),
+                    ],
                   ),
+                ),
+              ),
           ],
         ),
       ),
@@ -149,30 +158,30 @@ class DueSoonCard extends StatelessWidget {
                 ),
               )
             else
-              ...assignments
-                  .take(4)
-                  .map(
-                    (a) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              a.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            formatShortDate(a.dueDate),
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: AluColors.textSecondary),
-                          ),
-                        ],
+              ...assignments.map(
+                (a) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          a.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Text(
+                        formatShortDate(a.dueDate),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: AluColors.textSecondary),
+                      ),
+                    ],
                   ),
+                ),
+              ),
           ],
         ),
       ),

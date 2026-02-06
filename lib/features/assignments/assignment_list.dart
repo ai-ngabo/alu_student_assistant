@@ -15,7 +15,7 @@ class AssignmentListScreen extends StatelessWidget {
       MaterialPageRoute(builder: (_) => const AssignmentFormScreen()),
     );
     if (created == null || !context.mounted) return;
-    await AppStateScope.of(context).addAssignment(created);
+    AppStateScope.of(context).addAssignment(created);
   }
 
   Future<void> _editAssignment(BuildContext context, Assignment assignment) async {
@@ -25,7 +25,7 @@ class AssignmentListScreen extends StatelessWidget {
       ),
     );
     if (updated == null || !context.mounted) return;
-    await AppStateScope.of(context).updateAssignment(updated);
+    AppStateScope.of(context).updateAssignment(updated);
   }
 
   void _deleteAssignment(BuildContext context, Assignment assignment) {
@@ -40,9 +40,9 @@ class AssignmentListScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () async { // Make this async
+            onPressed: () {
               Navigator.of(context).pop();
-              await AppStateScope.of(context).removeAssignment(assignment.id);
+              AppStateScope.of(context).removeAssignment(assignment.id);
             },
             child: const Text(
               'Remove',
@@ -54,8 +54,8 @@ class AssignmentListScreen extends StatelessWidget {
     );
   }
 
-  void _toggleCompletion(BuildContext context, Assignment assignment) async {
-    await AppStateScope.of(context).toggleAssignmentCompleted(assignment.id);
+  void _toggleCompletion(BuildContext context, Assignment assignment) {
+    AppStateScope.of(context).toggleAssignmentCompleted(assignment.id);
   }
 
   Color _getAssignmentColor(Assignment assignment) {
@@ -66,6 +66,7 @@ class AssignmentListScreen extends StatelessWidget {
       case 'Medium':
         return AluColors.warning;
       case 'Low':
+        return AluColors.primary;
       default:
         return AluColors.primary;
     }
@@ -167,6 +168,17 @@ class AssignmentListScreen extends StatelessWidget {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (assignment.description.trim().isNotEmpty) ...[
+                  Text(
+                    assignment.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: subtitleColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
                 if (assignment.course.trim().isNotEmpty) ...[
                   Text(
                     assignment.course,
@@ -267,7 +279,7 @@ class _PriorityChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = label.trim().isEmpty ? 'Low' : label.trim();
+    final text = label.trim().isEmpty ? 'Not set' : label.trim();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(

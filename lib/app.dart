@@ -6,11 +6,18 @@ import 'features/dashboard/dashboard_screen.dart';
 import 'features/sessions/session_form.dart';
 import 'features/sessions/session_model.dart';
 import 'features/sessions/session_schedule.dart';
+import 'features/settings/settings_screen.dart';
+import 'shared/services/reminder_service.dart';
 import 'shared/state/app_state.dart';
 import 'shared/state/app_state_scope.dart';
 import 'shared/theme/colors.dart';
 import 'shared/theme/text_styles.dart';
 
+/// Root widget that wires together:
+/// - Theme (ALU colors)
+/// - Global app state (`AppStateScope`)
+/// - In-app reminders (`ReminderServiceScope`)
+/// - Bottom navigation shell
 class AluStudentAssistantApp extends StatefulWidget {
   const AluStudentAssistantApp({super.key});
 
@@ -21,8 +28,22 @@ class AluStudentAssistantApp extends StatefulWidget {
 class _AluStudentAssistantAppState extends State<AluStudentAssistantApp> {
   final AppState _appState = AppState();
 
+  // Used by ReminderService to display dialogs from anywhere in the app.
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  late final ReminderService _reminderService =
+      ReminderService(navigatorKey: _navigatorKey, appState: _appState);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reminderService.start();
+    });
+  }
+
   @override
   void dispose() {
+    _reminderService.dispose();
     _appState.dispose();
     super.dispose();
   }
@@ -66,11 +87,15 @@ class _AluStudentAssistantAppState extends State<AluStudentAssistantApp> {
 
     return AppStateScope(
       appState: _appState,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'ALU Student Assistant',
-        theme: theme,
-        home: const _HomeShell(),
+      child: ReminderServiceScope(
+        reminderService: _reminderService,
+        child: MaterialApp(
+          navigatorKey: _navigatorKey,
+          debugShowCheckedModeBanner: false,
+          title: 'ALU Student Assistant',
+          theme: theme,
+          home: const _HomeShell(),
+        ),
       ),
     );
   }
@@ -93,13 +118,13 @@ class _HomeShellState extends State<_HomeShell> {
         MaterialPageRoute(builder: (_) => const AssignmentFormScreen()),
       );
       if (!mounted || created == null) return;
-      await state.addAssignment(created);
+      state.addAssignment(created);
     } else if (_index == 2) {
       final created = await Navigator.of(context).push<AcademicSession>(
         MaterialPageRoute(builder: (_) => const SessionFormScreen()),
       );
       if (!mounted || created == null) return;
-      await state.addSession(created);
+      state.addSession(created);
     }
   }
 
@@ -109,14 +134,16 @@ class _HomeShellState extends State<_HomeShell> {
       const DashboardScreen(),
       const AssignmentListScreen(),
       const SessionScheduleScreen(),
+      const SettingsScreen(),
     ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(switch (_index) {
-          0 => 'Dashboard',
+          0 => 'Today',
           1 => 'Assignments',
-          _ => 'Schedule',
+          2 => 'Calendar',
+          _ => 'Settings',
         }),
         actions: [
           if (_index == 1 || _index == 2)
@@ -130,21 +157,33 @@ class _HomeShellState extends State<_HomeShell> {
       body: SafeArea(
         child: IndexedStack(index: _index, children: screens),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (idx) => setState(() => _index = idx),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _index,
+        onTap: (idx) => setState(() => _index = idx),
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: AluColors.secondary,
+        unselectedItemColor: AluColors.textSecondary,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: 'Today',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.checklist),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.checklist_outlined),
+            activeIcon: Icon(Icons.checklist),
             label: 'Assignments',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month),
-            label: 'Schedule',
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month_outlined),
+            activeIcon: Icon(Icons.calendar_month),
+            label: 'Calendar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),

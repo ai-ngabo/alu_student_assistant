@@ -21,9 +21,13 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
 
   late final TextEditingController _titleController;
   late final TextEditingController _courseController;
+  late final TextEditingController _descriptionController;
   DateTime? _dueDate;
-  String _priority = 'Low';
+  String _priority = '';
   bool _isSubmitting = false;
+  bool _reminderEnabled = false;
+  int _reminderDaysBefore = 0;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
 
   @override
   void initState() {
@@ -32,21 +36,38 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
     _courseController = TextEditingController(
       text: widget.initial?.course ?? '',
     );
+    _descriptionController = TextEditingController(
+      text: widget.initial?.description ?? '',
+    );
     _dueDate = widget.initial?.dueDate;
-    _priority = (widget.initial?.priority.trim().isEmpty ?? true)
-        ? 'Low'
-        : widget.initial!.priority;
+    _priority = widget.initial?.priority ?? '';
+    _reminderEnabled = widget.initial?.reminderEnabled ?? false;
+    _reminderDaysBefore = widget.initial?.reminderDaysBefore ?? 0;
+    _reminderTime =
+        widget.initial?.reminderTime ?? const TimeOfDay(hour: 9, minute: 0);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _courseController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final dueError = _validateDueDate(_dueDate);
+    if (dueError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(dueError),
+          backgroundColor: AluColors.danger,
+        ),
+      );
+      return;
+    }
 
     // Prevent double submission
     if (_isSubmitting) return;
@@ -59,17 +80,25 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
           ? Assignment(
         id: widget.initial!.id,
         title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
         dueDate: startOfDay(_dueDate!),
         course: _courseController.text.trim(),
         priority: _priority,
         isCompleted: widget.initial!.isCompleted,
         createdAt: widget.initial!.createdAt,
+        reminderEnabled: _reminderEnabled,
+        reminderDaysBefore: _reminderDaysBefore,
+        reminderTime: _reminderTime,
       )
           : Assignment.createNew(
         title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
         dueDate: startOfDay(_dueDate!),
         course: _courseController.text.trim(),
         priority: _priority,
+        reminderEnabled: _reminderEnabled,
+        reminderDaysBefore: _reminderDaysBefore,
+        reminderTime: _reminderTime,
       );
 
       Navigator.of(context).pop(finalAssignment);
@@ -103,7 +132,9 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
 
   String? _validateDueDate(DateTime? date) {
     if (date == null) return 'Due date is required';
-    if (date.isBefore(DateTime.now())) {
+    final selected = startOfDay(date);
+    final today = startOfDay(DateTime.now());
+    if (selected.isBefore(today)) {
       return 'Due date cannot be in the past';
     }
     return null;
@@ -111,21 +142,24 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
 
   Color _getDueDateColor() {
     if (_dueDate == null) return AluColors.primary;
-    final daysLeft = _dueDate!.difference(DateTime.now()).inDays;
+    final daysLeft =
+        startOfDay(_dueDate!).difference(startOfDay(DateTime.now())).inDays;
     if (daysLeft <= 3) return AluColors.warning;
     return AluColors.success;
   }
 
   IconData _getDueDateIcon() {
     if (_dueDate == null) return Icons.calendar_today;
-    final daysLeft = _dueDate!.difference(DateTime.now()).inDays;
+    final daysLeft =
+        startOfDay(_dueDate!).difference(startOfDay(DateTime.now())).inDays;
     if (daysLeft <= 3) return Icons.warning;
     return Icons.calendar_today;
   }
 
   String _getDueDateMessage() {
     if (_dueDate == null) return 'Select a due date';
-    final daysLeft = _dueDate!.difference(DateTime.now()).inDays;
+    final daysLeft =
+        startOfDay(_dueDate!).difference(startOfDay(DateTime.now())).inDays;
     if (daysLeft <= 3) {
       return 'Due soon! $daysLeft day${daysLeft == 1 ? '' : 's'} remaining';
     }
@@ -204,6 +238,24 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Description field (rubric requirement)
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(
+                    labelText: 'Description (Optional)',
+                    hintText: 'Add a short note about this assignment',
+                    prefixIcon: const Icon(Icons.notes),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    filled: true,
+                    fillColor: colorScheme.surfaceContainerHighest,
+                  ),
+                  maxLines: 3,
+                  maxLength: 240,
+                ),
+                const SizedBox(height: 16),
+
                 // Course field
                 TextFormField(
                   controller: _courseController,
@@ -236,6 +288,16 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
                   ),
                   items: const [
                     DropdownMenuItem(
+                      value: '',
+                      child: Row(
+                        children: [
+                          Icon(Icons.remove, color: AluColors.disco, size: 20),
+                          SizedBox(width: 8),
+                          Text('Not set'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
                       value: 'High',
                       child: Row(
                         children: [
@@ -266,9 +328,79 @@ class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
                       ),
                     ),
                   ],
-                  onChanged: (v) => setState(() => _priority = v ?? 'Low'),
+                  onChanged: (v) => setState(() => _priority = v ?? ''),
                 ),
                 const SizedBox(height: 32),
+
+                // Reminder section (rubric requirement).
+                // This is an in-app popup only (no background notifications).
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.notifications_active),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Reminder (Optional)',
+                              style: theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          value: _reminderEnabled,
+                          onChanged: (v) => setState(() => _reminderEnabled = v),
+                          title: const Text('Enable reminder popup'),
+                          subtitle: const Text(
+                            'Shows a popup when the reminder time is reached (while the app is open).',
+                          ),
+                        ),
+                        if (_reminderEnabled) ...[
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            initialValue: _reminderDaysBefore,
+                            decoration: const InputDecoration(
+                              labelText: 'Remind me',
+                              prefixIcon: Icon(Icons.schedule),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 0,
+                                child: Text('On the due date'),
+                              ),
+                              DropdownMenuItem(
+                                value: 1,
+                                child: Text('1 day before'),
+                              ),
+                              DropdownMenuItem(
+                                value: 2,
+                                child: Text('2 days before'),
+                              ),
+                              DropdownMenuItem(
+                                value: 3,
+                                child: Text('3 days before'),
+                              ),
+                            ],
+                            onChanged: (v) =>
+                                setState(() => _reminderDaysBefore = v ?? 0),
+                          ),
+                          const SizedBox(height: 12),
+                          TimePickerField(
+                            label: 'Reminder time',
+                            value: _reminderTime,
+                            onChanged: (t) => setState(() => _reminderTime = t),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
 
                 // Due date warning
                 if (_dueDate != null)

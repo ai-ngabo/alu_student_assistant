@@ -4,6 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'assignment_model.dart';
 
+/// Simple SharedPreferences-backed repository for assignments.
+///
+/// Storage format:
+/// - JSON list under the [_storageKey] key
+///
+/// Notes:
+/// - This repository is intentionally small and synchronous-looking from the UI
+///   perspective; the app state calls load/save at the boundaries.
 class AssignmentRepository {
   static const String _storageKey = 'alu_student_assignments';
 
@@ -34,7 +42,7 @@ class AssignmentRepository {
           .toList();
     } catch (e) {
       debugPrint('Error loading assignments: $e');
-      // If data is corrupted, needs to be cleared
+      // If data is corrupted, clear it to keep the app usable.
       await clearAll();
       return [];
     }
