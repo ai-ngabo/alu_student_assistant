@@ -1,16 +1,16 @@
+// dashboard_page.dart
 import 'package:flutter/material.dart';
+import 'models.dart';
+import 'dummy_data.dart';
 
-import '../../dummy_data.dart';
-import '../../models.dart';
-
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({Key? key}) : super(key: key);
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardPageState extends State<DashboardPage> {
   late List<Assignment> assignments;
   late List<Session> sessions;
   late double attendancePercentage;

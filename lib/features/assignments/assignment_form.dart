@@ -1,137 +1,36 @@
 import 'package:flutter/material.dart';
+
+import '../../shared/widgets/custom_button.dart';
+import '../../shared/widgets/date_time_picker.dart';
+import '../../utils/date_helpers.dart';
 import 'assignment_model.dart';
-import 'assignment_repository.dart';
 
-class AssignmentForm extends StatefulWidget {
-  final Assignment? existingAssignment;
+class AssignmentFormScreen extends StatefulWidget {
+  const AssignmentFormScreen({super.key, this.initial});
 
-  const AssignmentForm({super.key, this.existingAssignment});
+  final Assignment? initial;
 
   @override
-  State<AssignmentForm> createState() => _AssignmentFormState();
+  State<AssignmentFormScreen> createState() => _AssignmentFormScreenState();
 }
 
-class _AssignmentFormState extends State<AssignmentForm> {
+class _AssignmentFormScreenState extends State<AssignmentFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _courseController = TextEditingController();
-  DateTime _dueDate = DateTime.now().add(const Duration(days: 1));
-  String _priority = 'Medium';
 
-  final AssignmentRepository _repository = AssignmentRepository();
+  late final TextEditingController _titleController;
+  late final TextEditingController _courseController;
+  DateTime? _dueDate;
+  String _priority = 'Low';
 
   @override
   void initState() {
     super.initState();
-    if (widget.existingAssignment != null) {
-      _titleController.text = widget.existingAssignment!.title;
-      _courseController.text = widget.existingAssignment!.course;
-      _dueDate = widget.existingAssignment!.dueDate;
-      _priority = widget.existingAssignment!.priority;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.existingAssignment == null
-              ? 'Create New Assignment'
-              : 'Edit Assignment',
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Assignment Title *',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Please enter assignment title'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                title: const Text('Due Date'),
-                subtitle: Text(
-                  '${_dueDate.day}/${_dueDate.month}/${_dueDate.year}',
-                ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final selectedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _dueDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (!mounted) return; // ✅ safe context usage
-                  if (selectedDate != null) {
-                    setState(() => _dueDate = selectedDate);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _courseController,
-                decoration: const InputDecoration(
-                  labelText: 'Course Name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: _priority,
-                decoration: const InputDecoration(
-                  labelText: 'Priority Level',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'High', child: Text('High')),
-                  DropdownMenuItem(value: 'Medium', child: Text('Medium')),
-                  DropdownMenuItem(value: 'Low', child: Text('Low')),
-                ],
-                onChanged: (value) =>
-                    setState(() => _priority = value ?? 'Medium'),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _saveAssignment,
-                child: const Text('Save Assignment'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _saveAssignment() async {
-    if (_formKey.currentState!.validate()) {
-      final assignment = Assignment(
-        id: widget.existingAssignment?.id ?? Assignment.generateId(),
-        title: _titleController.text,
-        dueDate: _dueDate,
-        course: _courseController.text,
-        priority: _priority,
-        isCompleted: widget.existingAssignment?.isCompleted ?? false,
-      );
-
-      if (widget.existingAssignment == null) {
-        await _repository.addAssignment(assignment);
-      } else {
-        await _repository.updateAssignment(assignment);
-      }
-
-      if (!mounted) return;
-      Navigator.pop(context, assignment);
-    }
+    _titleController = TextEditingController(text: widget.initial?.title ?? '');
+    _courseController = TextEditingController(text: widget.initial?.course ?? '');
+    _dueDate = widget.initial?.dueDate;
+    _priority = (widget.initial?.priority.trim().isEmpty ?? true)
+        ? 'Low'
+        : widget.initial!.priority;
   }
 
   @override
@@ -139,5 +38,90 @@ class _AssignmentFormState extends State<AssignmentForm> {
     _titleController.dispose();
     _courseController.dispose();
     super.dispose();
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    if (_dueDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a due date.')),
+      );
+      return;
+    }
+
+    final assignment = Assignment(
+      id: widget.initial?.id ?? Assignment.generateId(),
+      title: _titleController.text.trim(),
+      dueDate: startOfDay(_dueDate!),
+      course: _courseController.text.trim(),
+      priority: _priority,
+      isCompleted: widget.initial?.isCompleted ?? false,
+    );
+
+    Navigator.of(context).pop(assignment);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEdit = widget.initial != null;
+    return Scaffold(
+      appBar: AppBar(title: Text(isEdit ? 'Edit Assignment' : 'New Assignment')),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Assignment Title *',
+                      hintText: 'e.g., Reflection Essay',
+                    ),
+                    validator: (v) {
+                      final value = v?.trim() ?? '';
+                      if (value.isEmpty) return 'Title is required.';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  DatePickerField(
+                    label: 'Due Date *',
+                    value: _dueDate,
+                    onChanged: (dt) => setState(() => _dueDate = dt),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _courseController,
+                    decoration: const InputDecoration(
+                      labelText: 'Course Name',
+                      hintText: 'e.g., Foundations of Leadership',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: _priority,
+                    decoration: const InputDecoration(labelText: 'Priority'),
+                    items: const [
+                      DropdownMenuItem(value: 'High', child: Text('High')),
+                      DropdownMenuItem(value: 'Medium', child: Text('Medium')),
+                      DropdownMenuItem(value: 'Low', child: Text('Low')),
+                    ],
+                    onChanged: (v) => setState(() => _priority = v ?? 'Low'),
+                  ),
+                  const SizedBox(height: 20),
+                  CustomButton(
+                    text: isEdit ? 'Save Changes' : 'Create Assignment',
+                    onPressed: _submit,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
