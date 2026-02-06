@@ -89,17 +89,17 @@ class _HomeShellState extends State<_HomeShell> {
   Future<void> _handleAddPressed() async {
     final state = AppStateScope.of(context);
     if (_index == 1) {
-      final created = await Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const AssignmentFormScreen()));
+      final created = await Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const AssignmentFormScreen()),
+      );
       if (!mounted || created == null) return;
-      state.addAssignment(created);
+      await state.addAssignment(created);
     } else if (_index == 2) {
       final created = await Navigator.of(context).push<AcademicSession>(
         MaterialPageRoute(builder: (_) => const SessionFormScreen()),
       );
       if (!mounted || created == null) return;
-      state.addSession(created);
+      await state.addSession(created);
     }
   }
 

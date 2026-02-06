@@ -1,3 +1,4 @@
+// lib/features/sessions/session_form.dart
 import 'package:flutter/material.dart';
 
 import '../../shared/theme/colors.dart';
@@ -59,9 +60,9 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
   void _submit() {
     final timeError = _validateTimeRange();
     if (timeError != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(timeError)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(timeError)),
+      );
       return;
     }
 
@@ -93,7 +94,11 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
   Widget build(BuildContext context) {
     final isEdit = widget.initial != null;
     return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? 'Edit Session' : 'New Session')),
+      appBar: AppBar(
+        title: Text(isEdit ? 'Edit Session' : 'New Session'),
+        backgroundColor: AluColors.primary,
+        foregroundColor: Colors.white,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -143,15 +148,15 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<SessionType>(
-                    value: _type,
+                    initialValue: _type,
                     decoration: const InputDecoration(
                       labelText: 'Session Type *',
                     ),
                     items: SessionType.values
                         .map(
                           (t) =>
-                              DropdownMenuItem(value: t, child: Text(t.label)),
-                        )
+                          DropdownMenuItem(value: t, child: Text(t.label)),
+                    )
                         .toList(),
                     onChanged: (t) => setState(() => _type = t ?? _type),
                   ),
@@ -167,6 +172,7 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
                   CustomButton(
                     text: isEdit ? 'Save Changes' : 'Create Session',
                     onPressed: _submit,
+                    icon: isEdit ? Icons.save : Icons.add, // ADD THIS LINE
                   ),
                   if (isEdit) ...[
                     const SizedBox(height: 12),
