@@ -7,11 +7,16 @@ import 'features/sessions/session_form.dart';
 import 'features/sessions/session_model.dart';
 import 'features/sessions/session_schedule.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/attendance/attendance_summary.dart';
+import 'features/attendance/attendance_screen.dart';
+import 'features/attendance/attendance_history.dart';
 import 'shared/services/reminder_service.dart';
 import 'shared/state/app_state.dart';
 import 'shared/state/app_state_scope.dart';
 import 'shared/theme/colors.dart';
 import 'shared/theme/text_styles.dart';
+
+
 
 /// Root widget that wires together:
 /// - Theme (ALU colors)
@@ -133,6 +138,7 @@ class _HomeShellState extends State<_HomeShell> {
     final screens = <Widget>[
       const DashboardScreen(),
       const AssignmentListScreen(),
+      const AttendanceSummaryScreen(),
       const SessionScheduleScreen(),
       const SettingsScreen(),
     ];
@@ -141,8 +147,9 @@ class _HomeShellState extends State<_HomeShell> {
       appBar: AppBar(
         title: Text(switch (_index) {
           0 => 'Today',
-          1 => 'Assignments',
-          2 => 'Calendar',
+          1 => 'Attendance',
+          2 => 'Assignments',
+          3 => 'Calendar',
           _ => 'Settings',
         }),
         actions: [
@@ -174,6 +181,11 @@ class _HomeShellState extends State<_HomeShell> {
             icon: Icon(Icons.checklist_outlined),
             activeIcon: Icon(Icons.checklist),
             label: 'Assignments',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.fact_check_outlined),
+            activeIcon: Icon(Icons.fact_check),
+            label: 'Attendance',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month_outlined),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shared/state/app_state_scope.dart';
 import '../../shared/theme/colors.dart';
 import '../../shared/widgets/info_card.dart';
+import '../../shared/widgets/attendance_indicator.dart';
 import '../../utils/date_helpers.dart';
 import '../sessions/session_model.dart';
 
