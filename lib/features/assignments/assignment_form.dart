@@ -35,9 +35,11 @@ class _AssignmentFormState extends State<AssignmentForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existingAssignment == null
-            ? 'Create New Assignment'
-            : 'Edit Assignment'),
+        title: Text(
+          widget.existingAssignment == null
+              ? 'Create New Assignment'
+              : 'Edit Assignment',
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,7 +66,9 @@ class _AssignmentFormState extends State<AssignmentForm> {
               // Due Date Picker
               ListTile(
                 title: const Text('Due Date'),
-                subtitle: Text('${_dueDate.day}/${_dueDate.month}/${_dueDate.year}'),
+                subtitle: Text(
+                  '${_dueDate.day}/${_dueDate.month}/${_dueDate.year}',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final selectedDate = await showDatePicker(
