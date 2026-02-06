@@ -5,10 +5,10 @@ import 'assignment_repository.dart';
 class AssignmentForm extends StatefulWidget {
   final Assignment? existingAssignment;
 
-  const AssignmentForm({Key? key, this.existingAssignment}) : super(key: key);
+  const AssignmentForm({super.key, this.existingAssignment});
 
   @override
-  _AssignmentFormState createState() => _AssignmentFormState();
+  State<AssignmentForm> createState() => _AssignmentFormState();
 }
 
 class _AssignmentFormState extends State<AssignmentForm> {
@@ -35,11 +35,9 @@ class _AssignmentFormState extends State<AssignmentForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.existingAssignment == null
-              ? 'Create New Assignment'
-              : 'Edit Assignment',
-        ),
+        title: Text(widget.existingAssignment == null
+            ? 'Create New Assignment'
+            : 'Edit Assignment'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -47,23 +45,18 @@ class _AssignmentFormState extends State<AssignmentForm> {
           key: _formKey,
           child: ListView(
             children: [
-              // Title Field
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
                   labelText: 'Assignment Title *',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter assignment title';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                (value == null || value.isEmpty)
+                    ? 'Please enter assignment title'
+                    : null,
               ),
               const SizedBox(height: 16),
-
-              // Due Date Picker
               ListTile(
                 title: const Text('Due Date'),
                 subtitle: Text(
@@ -77,16 +70,13 @@ class _AssignmentFormState extends State<AssignmentForm> {
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(const Duration(days: 365)),
                   );
+                  if (!mounted) return; // ✅ safe context usage
                   if (selectedDate != null) {
-                    setState(() {
-                      _dueDate = selectedDate;
-                    });
+                    setState(() => _dueDate = selectedDate);
                   }
                 },
               ),
               const SizedBox(height: 16),
-
-              // Course Name Field
               TextFormField(
                 controller: _courseController,
                 decoration: const InputDecoration(
@@ -95,8 +85,6 @@ class _AssignmentFormState extends State<AssignmentForm> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Priority Dropdown
               DropdownButtonFormField<String>(
                 initialValue: _priority,
                 decoration: const InputDecoration(
@@ -108,15 +96,10 @@ class _AssignmentFormState extends State<AssignmentForm> {
                   DropdownMenuItem(value: 'Medium', child: Text('Medium')),
                   DropdownMenuItem(value: 'Low', child: Text('Low')),
                 ],
-                onChanged: (value) {
-                  setState(() {
-                    _priority = value ?? 'Medium';
-                  });
-                },
+                onChanged: (value) =>
+                    setState(() => _priority = value ?? 'Medium'),
               ),
               const SizedBox(height: 24),
-
-              // Submit Button
               ElevatedButton(
                 onPressed: _saveAssignment,
                 child: const Text('Save Assignment'),
@@ -145,6 +128,7 @@ class _AssignmentFormState extends State<AssignmentForm> {
         await _repository.updateAssignment(assignment);
       }
 
+      if (!mounted) return;
       Navigator.pop(context, assignment);
     }
   }
