@@ -68,6 +68,7 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
         '${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}';
 
     final weekDays = List.generate(7, (i) => weekStart.add(Duration(days: i)));
+    final today = DateTime.now();
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -95,6 +96,15 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
           ],
         ),
         const SizedBox(height: 12),
+        // "Calendar linkage" (rubric): show a weekly strip that highlights days
+        // with scheduled sessions and/or assignments due.
+        _WeekStrip(
+          weekDays: weekDays,
+          today: today,
+          sessionCountForDay: (day) => state.sessionsOnDay(day).length,
+          assignmentCountForDay: (day) => state.assignmentsDueOnDay(day).length,
+        ),
+        const SizedBox(height: 12),
         ...weekDays.map((day) {
           final sessions = state.sessionsOnDay(day);
           return _DaySection(
@@ -114,6 +124,134 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
           ).textTheme.bodyMedium?.copyWith(color: AluColors.textSecondary),
         ),
       ],
+    );
+  }
+}
+
+class _WeekStrip extends StatelessWidget {
+  const _WeekStrip({
+    required this.weekDays,
+    required this.today,
+    required this.sessionCountForDay,
+    required this.assignmentCountForDay,
+  });
+
+  final List<DateTime> weekDays;
+  final DateTime today;
+  final int Function(DateTime day) sessionCountForDay;
+  final int Function(DateTime day) assignmentCountForDay;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: weekDays.map((day) {
+            final isToday = isSameDay(day, today);
+            final sessions = sessionCountForDay(day);
+            final assignments = assignmentCountForDay(day);
+            final hasItems = sessions > 0 || assignments > 0;
+
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: isToday
+                        ? AluColors.secondary.withOpacity(0.12)
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: isToday
+                          ? AluColors.secondary
+                          : Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        ['M', 'T', 'W', 'T', 'F', 'S', 'S'][day.weekday - 1],
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: isToday
+                                  ? AluColors.secondary
+                                  : AluColors.textSecondary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${day.day}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: AluColors.textPrimary,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      if (!hasItems)
+                        const SizedBox(height: 6)
+                      else
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 4,
+                          children: [
+                            if (sessions > 0)
+                              _CountDot(
+                                color: AluColors.primary,
+                                label: '$sessions',
+                                tooltip: '$sessions session(s)',
+                              ),
+                            if (assignments > 0)
+                              _CountDot(
+                                color: AluColors.disco,
+                                label: '$assignments',
+                                tooltip: '$assignments assignment(s) due',
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class _CountDot extends StatelessWidget {
+  const _CountDot({
+    required this.color,
+    required this.label,
+    required this.tooltip,
+  });
+
+  final Color color;
+  final String label;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: color,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -249,12 +387,12 @@ class _AttendanceToggle extends StatelessWidget {
       segments: const [
         ButtonSegment(
           value: AttendanceStatus.present,
-          label: Text('P'),
+          label: Text('Present'),
           icon: Icon(Icons.check, size: 16),
         ),
         ButtonSegment(
           value: AttendanceStatus.absent,
-          label: Text('A'),
+          label: Text('Absent'),
           icon: Icon(Icons.close, size: 16),
         ),
       ],

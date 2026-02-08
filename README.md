@@ -9,6 +9,8 @@ and monitor their academic engagement throughout the term.
 - **Assignments**: create, view (sorted by due date), edit, complete, and delete assignments.
 - **Schedule**: create, view weekly sessions, edit/delete sessions, and record attendance (Present/Absent) per session.
 - **Attendance tracking**: attendance % is calculated automatically from sessions where attendance is recorded; history view is available from the dashboard.
+- **Settings**: enable/disable in-app reminder popups and clear demo data.
+- **Reminders (in-app)**: optional assignment reminder (days-before + time) that triggers a popup while the app is open.
 
 ## Setup
 1. Install Flutter (stable channel).
@@ -34,7 +36,13 @@ and monitor their academic engagement throughout the term.
   - `assignments`
   - `sessions` (includes attendance per session)
 - UI reads state via `AppStateScope.of(context)` and rebuilds automatically when `notifyListeners()` is called.
-- Storage is currently **in-memory**; a storage layer can persist `Assignment.toJson()` and `AcademicSession.toJson()` later.
+- Reminder popups are handled by a separate `ChangeNotifier` (`ReminderService`) exposed via `ReminderServiceScope`.
+
+## Architecture Notes (What to explain in the demo)
+- **Single source of truth:** `AppState` owns all lists and business rules (filtering/sorting/attendance %).
+- **Feature-first UI:** each screen lives under `lib/features/<feature>/` with its widgets and models.
+- **Reminder popup behavior:** reminders are intentionally “in-app only” (they trigger while the app is open) to satisfy the rubric popup requirement without complex OS notification setup.
+- **Attendance rules:** attendance % is calculated only from sessions where Present/Absent is recorded; until then the dashboard shows `N/A`.
 
 ## Contribution
 - Branch: `feature/<name>`

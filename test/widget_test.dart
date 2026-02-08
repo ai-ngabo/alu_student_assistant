@@ -13,14 +13,18 @@ void main() {
   testWidgets('Bottom navigation switches tabs', (WidgetTester tester) async {
     await tester.pumpWidget(const AluStudentAssistantApp());
 
-    expect(find.text('Dashboard'), findsOneWidget);
+    expect(find.text('Today'), findsOneWidget);
 
     await tester.tap(find.text('Assignments'));
     await tester.pumpAndSettle();
     expect(find.text('Assignments'), findsNWidgets(2));
 
-    await tester.tap(find.text('Schedule'));
+    await tester.tap(find.text('Calendar'));
     await tester.pumpAndSettle();
-    expect(find.text('Schedule'), findsNWidgets(2));
+    expect(find.text('Calendar'), findsNWidgets(2));
+
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Settings'), findsNWidgets(2));
   });
 }
