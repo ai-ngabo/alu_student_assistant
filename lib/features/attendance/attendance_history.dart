@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../shared/state/app_state_scope.dart';
 import '../../shared/theme/colors.dart';
 import '../../shared/widgets/info_card.dart';
-import '../../shared/widgets/attendance_indicator.dart';
 import '../../utils/date_helpers.dart';
 import '../sessions/session_model.dart';
 
@@ -16,10 +15,13 @@ class AttendanceHistoryScreen extends StatelessWidget {
     final recorded = state.sessions.where((s) => s.attendance != null).toList()
       ..sort((a, b) => b.date.compareTo(a.date));
 
-    final pct = state.attendancePercentage.toStringAsFixed(0);
-    final color = state.isAttendanceBelowThreshold
-        ? AluColors.danger
-        : AluColors.success;
+    final hasData = state.hasRecordedAttendance;
+    final pct = hasData ? state.attendancePercentage.toStringAsFixed(0) : 'N/A';
+    final color = hasData
+        ? (state.isAttendanceBelowThreshold
+            ? AluColors.danger
+            : AluColors.success)
+        : AluColors.primary;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Attendance History')),
@@ -30,7 +32,9 @@ class AttendanceHistoryScreen extends StatelessWidget {
             InfoCard(
               title: 'Overall attendance',
               value:
-                  '$pct% • ${state.presentAttendanceCount}/${state.recordedAttendanceCount} sessions',
+                  hasData
+                      ? '$pct% • ${state.presentAttendanceCount}/${state.recordedAttendanceCount} sessions'
+                      : 'No attendance recorded yet',
               icon: Icons.analytics,
               accent: color,
             ),

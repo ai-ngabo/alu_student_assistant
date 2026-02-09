@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shared/state/app_state_scope.dart';
 import '../../shared/theme/colors.dart';
 import '../../utils/date_helpers.dart';
-import '../attendance/attendance_history.dart';
+import '../attendance/attendance_summary.dart';
 import 'dashboard_widgets.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -48,7 +48,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           recordedCount: state.recordedAttendanceCount,
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AttendanceHistoryScreen()),
+              MaterialPageRoute(builder: (_) => const AttendanceSummaryScreen()),
             );
           },
         ),

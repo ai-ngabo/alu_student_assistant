@@ -1,48 +1,55 @@
 # alu_student_assistant
 
-A mobile application that serves as a personal academic assistant for ALU students. 
-Your app should help users organize their coursework, track their schedule, 
-and monitor their academic engagement throughout the term.
+We built a mobile academic assistant for African Leadership University (ALU) students.
+It helps you keep up with assignments, plan academic sessions, and track attendance during the term.
 
 ## Features (Core Requirements)
-- **Dashboard**: today’s date + academic week, today’s sessions, assignments due in 7 days, pending assignment count, overall attendance %, and a warning when attendance is below 75%.
-- **Assignments**: create, view (sorted by due date), edit, complete, and delete assignments.
-- **Schedule**: create, view weekly sessions, edit/delete sessions, and record attendance (Present/Absent) per session.
-- **Attendance tracking**: attendance % is calculated automatically from sessions where attendance is recorded; history view is available from the dashboard.
-- **Settings**: enable/disable in-app reminder popups and clear demo data.
-- **Reminders (in-app)**: optional assignment reminder (days-before + time) that triggers a popup while the app is open.
+- **Dashboard**: shows today’s date + academic week, today’s sessions, assignments due in 7 days, pending assignment count, and overall attendance %. When attendance drops below 75%, it shows a warning.
+- **Assignments**: add assignments (title, due date, course, optional priority), edit them, mark them complete, and delete them. The list is sorted by due date.
+- **Schedule**: add academic sessions (title, date, start/end time, optional location, and type), edit/delete sessions, and record attendance (Present/Absent).
+- **Attendance**: attendance % updates automatically based on recorded sessions, and you can view a summary + history.
+- **Settings**: turn in-app reminders on/off, test a reminder popup (for the demo), and clear demo data.
+- **Reminders (in-app)**: optional reminder on an assignment (days-before + time). The popup triggers while the app is open.
 
 ## Setup
 1. Install Flutter (stable channel).
 2. Clone this repo.
 3. Run `flutter pub get`.
-4. Launch with `flutter run`.
+4. Run the app with `flutter run`.
+
+## Navigation
+- Bottom tabs: **Dashboard**, **Assignments**, **Schedule**
+- Top-right avatar menu: **Attendance**, **Attendance history**, **Settings**
 
 ## Project Structure (Clean & Explainable)
-- `lib/app.dart`: app entry widget, theme, and bottom navigation shell.
+- `lib/app.dart`: theme + navigation shell (bottom tabs + avatar menu).
 - `lib/shared/`
   - `theme/`: ALU color palette + text styles.
   - `state/`: `AppState` (single source of truth) + `AppStateScope` (InheritedNotifier).
+  - `services/`: in-app services (e.g., reminder popups).
   - `widgets/`: reusable UI widgets (buttons, pickers, cards).
 - `lib/features/`
   - `dashboard/`: dashboard UI and summary widgets.
   - `assignments/`: assignment model + list + form.
   - `sessions/`: session model + weekly schedule + form.
-  - `attendance/`: attendance history screen and indicator widget.
+  - `attendance/`: attendance summary + history screens.
+  - `settings/`: reminder toggles and demo utilities.
 - `lib/utils/`: small helpers (date/week calculations, attendance computation).
 
 ## State Management (How data flows)
-- The app uses a single `ChangeNotifier` (`AppState`) to store:
-  - `assignments`
-  - `sessions` (includes attendance per session)
-- UI reads state via `AppStateScope.of(context)` and rebuilds automatically when `notifyListeners()` is called.
-- Reminder popups are handled by a separate `ChangeNotifier` (`ReminderService`) exposed via `ReminderServiceScope`.
+- `AppState` (a `ChangeNotifier`) holds `assignments` and `sessions` (sessions include attendance).
+- Screens read state with `AppStateScope.of(context)` and update automatically when `notifyListeners()` is called.
+- Reminder popups are handled by `ReminderService` (available via `ReminderServiceScope`).
+
+## Data persistence (current)
+- **Assignments**: persisted with `shared_preferences` as JSON (`AssignmentRepository`).
+- **Sessions + attendance**: in-memory only for now.
 
 ## Architecture Notes (What to explain in the demo)
-- **Single source of truth:** `AppState` owns all lists and business rules (filtering/sorting/attendance %).
-- **Feature-first UI:** each screen lives under `lib/features/<feature>/` with its widgets and models.
-- **Reminder popup behavior:** reminders are intentionally “in-app only” (they trigger while the app is open) to satisfy the rubric popup requirement without complex OS notification setup.
-- **Attendance rules:** attendance % is calculated only from sessions where Present/Absent is recorded; until then the dashboard shows `N/A`.
+- **Single source of truth:** `AppState` owns the lists + rules (sorting/filtering/attendance %).
+- **Feature-first UI:** we grouped code by feature so it’s easier to split work across the team.
+- **Reminder popups:** intentionally “in-app only” (they trigger while the app is open) to keep setup simple and still satisfy the rubric popup requirement.
+- **Attendance math:** we compute attendance from sessions that are actually marked Present/Absent; until then we show `N/A`.
 
 ## Contribution
 - Branch: `feature/<name>`

@@ -15,7 +15,7 @@ class AssignmentListScreen extends StatelessWidget {
       MaterialPageRoute(builder: (_) => const AssignmentFormScreen()),
     );
     if (created == null || !context.mounted) return;
-    AppStateScope.of(context).addAssignment(created);
+    await AppStateScope.of(context).addAssignment(created);
   }
 
   Future<void> _editAssignment(BuildContext context, Assignment assignment) async {
@@ -25,7 +25,7 @@ class AssignmentListScreen extends StatelessWidget {
       ),
     );
     if (updated == null || !context.mounted) return;
-    AppStateScope.of(context).updateAssignment(updated);
+    await AppStateScope.of(context).updateAssignment(updated);
   }
 
   void _deleteAssignment(BuildContext context, Assignment assignment) {
@@ -40,9 +40,9 @@ class AssignmentListScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              AppStateScope.of(context).removeAssignment(assignment.id);
+              await AppStateScope.of(context).removeAssignment(assignment.id);
             },
             child: const Text(
               'Remove',
@@ -54,8 +54,11 @@ class AssignmentListScreen extends StatelessWidget {
     );
   }
 
-  void _toggleCompletion(BuildContext context, Assignment assignment) {
-    AppStateScope.of(context).toggleAssignmentCompleted(assignment.id);
+  Future<void> _toggleCompletion(
+    BuildContext context,
+    Assignment assignment,
+  ) async {
+    await AppStateScope.of(context).toggleAssignmentCompleted(assignment.id);
   }
 
   Color _getAssignmentColor(Assignment assignment) {
@@ -151,7 +154,7 @@ class AssignmentListScreen extends StatelessWidget {
             ),
             leading: Checkbox(
               value: assignment.isCompleted,
-              onChanged: (_) => _toggleCompletion(context, assignment),
+              onChanged: (_) async => _toggleCompletion(context, assignment),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),

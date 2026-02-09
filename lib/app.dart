@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'features/assignments/assignment_form.dart';
 import 'features/assignments/assignment_list.dart';
+import 'features/attendance/attendance_history.dart';
+import 'features/attendance/attendance_summary.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/sessions/session_form.dart';
 import 'features/sessions/session_model.dart';
 import 'features/sessions/session_schedule.dart';
 import 'features/settings/settings_screen.dart';
-import 'features/attendance/attendance_summary.dart';
-import 'features/attendance/attendance_screen.dart';
-import 'features/attendance/attendance_history.dart';
 import 'shared/services/reminder_service.dart';
 import 'shared/state/app_state.dart';
 import 'shared/state/app_state_scope.dart';
@@ -123,7 +122,7 @@ class _HomeShellState extends State<_HomeShell> {
         MaterialPageRoute(builder: (_) => const AssignmentFormScreen()),
       );
       if (!mounted || created == null) return;
-      state.addAssignment(created);
+      await state.addAssignment(created);
     } else if (_index == 2) {
       final created = await Navigator.of(context).push<AcademicSession>(
         MaterialPageRoute(builder: (_) => const SessionFormScreen()),
@@ -133,24 +132,40 @@ class _HomeShellState extends State<_HomeShell> {
     }
   }
 
+  Future<void> _openMore(String value) async {
+    switch (value) {
+      case 'attendance':
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const AttendanceSummaryScreen()),
+        );
+        break;
+      case 'attendance_history':
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const AttendanceHistoryScreen()),
+        );
+        break;
+      case 'settings':
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const SettingsScreen()),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = <Widget>[
       const DashboardScreen(),
       const AssignmentListScreen(),
-      const AttendanceSummaryScreen(),
       const SessionScheduleScreen(),
-      const SettingsScreen(),
     ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(switch (_index) {
-          0 => 'Today',
-          1 => 'Attendance',
-          2 => 'Assignments',
-          3 => 'Calendar',
-          _ => 'Settings',
+          0 => 'Dashboard',
+          1 => 'Assignments',
+          _ => 'Schedule',
         }),
         actions: [
           if (_index == 1 || _index == 2)
@@ -159,6 +174,38 @@ class _HomeShellState extends State<_HomeShell> {
               onPressed: _handleAddPressed,
               icon: const Icon(Icons.add),
             ),
+          PopupMenuButton<String>(
+            tooltip: 'More',
+            onSelected: _openMore,
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'attendance',
+                child: ListTile(
+                  leading: Icon(Icons.fact_check),
+                  title: Text('Attendance'),
+                ),
+              ),
+              PopupMenuItem(
+                value: 'attendance_history',
+                child: ListTile(
+                  leading: Icon(Icons.history),
+                  title: Text('Attendance history'),
+                ),
+              ),
+              PopupMenuItem(
+                value: 'settings',
+                child: ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('Settings'),
+                ),
+              ),
+            ],
+            icon: const CircleAvatar(
+              radius: 14,
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, size: 18, color: AluColors.primary),
+            ),
+          ),
         ],
       ),
       body: SafeArea(
@@ -175,7 +222,7 @@ class _HomeShellState extends State<_HomeShell> {
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard_outlined),
             activeIcon: Icon(Icons.dashboard),
-            label: 'Today',
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.checklist_outlined),
@@ -183,19 +230,9 @@ class _HomeShellState extends State<_HomeShell> {
             label: 'Assignments',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fact_check_outlined),
-            activeIcon: Icon(Icons.fact_check),
-            label: 'Attendance',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month_outlined),
             activeIcon: Icon(Icons.calendar_month),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'Settings',
+            label: 'Schedule',
           ),
         ],
       ),

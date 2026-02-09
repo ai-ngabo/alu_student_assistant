@@ -40,6 +40,17 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clears demo data in a way that matches what the user sees.
+  ///
+  /// - Clears in-memory sessions/attendance
+  /// - Clears persisted assignments and reloads
+  Future<void> resetDemoData() async {
+    _sessions.clear();
+    _assignments.clear();
+    await _assignmentRepo.clearAll();
+    notifyListeners();
+  }
+
   AppState() {
     // Load persisted assignments on app start.
     _loadData();
@@ -163,13 +174,13 @@ class AppState extends ChangeNotifier {
 
   // Session methods (without persistence for now - teammates will add repository)
   /// Adds a session (in-memory only for now).
-  Future<void> addSession(AcademicSession session) async {
+  void addSession(AcademicSession session) {
     _sessions.add(session);
     notifyListeners();
   }
 
   /// Updates a session (in-memory only for now).
-  Future<void> updateSession(AcademicSession updated) async {
+  void updateSession(AcademicSession updated) {
     final index = _sessions.indexWhere((s) => s.id == updated.id);
     if (index == -1) return;
     _sessions[index] = updated;
@@ -177,13 +188,13 @@ class AppState extends ChangeNotifier {
   }
 
   /// Removes a session (in-memory only for now).
-  Future<void> removeSession(String id) async {
+  void removeSession(String id) {
     _sessions.removeWhere((s) => s.id == id);
     notifyListeners();
   }
 
   /// Records attendance for a session (Present/Absent/Not set).
-  Future<void> setSessionAttendance(String sessionId, AttendanceStatus? status) async {
+  void setSessionAttendance(String sessionId, AttendanceStatus? status) {
     final index = _sessions.indexWhere((s) => s.id == sessionId);
     if (index == -1) return;
     _sessions[index] = _sessions[index].copyWith(attendance: status);

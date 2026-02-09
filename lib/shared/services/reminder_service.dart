@@ -54,9 +54,45 @@ class ReminderService extends ChangeNotifier {
   }
 
   void _ensureRunning() {
-    // 30 seconds is a good demo-friendly interval: responsive without draining.
-    _timer ??= Timer.periodic(const Duration(seconds: 30), (_) => _tick());
+    // Short interval keeps the demo reliable without background notifications.
+    _timer ??= Timer.periodic(const Duration(seconds: 5), (_) => _tick());
     _tick();
+  }
+
+  /// Immediately shows a reminder popup for the first eligible assignment.
+  ///
+  /// Useful for the demo video so you can trigger a popup on demand.
+  void testReminderNow() {
+    final assignment = _appState.assignments.firstWhere(
+      (a) => !a.isCompleted && a.reminderEnabled,
+      orElse: () => _appState.assignments.firstWhere(
+        (a) => !a.isCompleted,
+        orElse: () => Assignment.createNew(
+          title: 'No assignment found',
+          description: '',
+          dueDate: DateTime.now(),
+        ).copyWith(isCompleted: true),
+      ),
+    );
+
+    if (assignment.isCompleted && assignment.title == 'No assignment found') {
+      _showInfoDialog(
+        title: 'No assignments',
+        message: 'Create an assignment first, then enable its reminder.',
+      );
+      return;
+    }
+
+    if (!assignment.reminderEnabled) {
+      _showInfoDialog(
+        title: 'Reminder not enabled',
+        message:
+            'Open the assignment and enable its reminder to test a real reminder popup.',
+      );
+      return;
+    }
+
+    _showReminderDialog(assignment);
   }
 
   void _tick() {
@@ -70,7 +106,7 @@ class ReminderService extends ChangeNotifier {
       final reminderAt = assignment.nextReminderDateTime;
       if (reminderAt == null) continue;
       final deltaSeconds = reminderAt.difference(now).inSeconds;
-      if (deltaSeconds <= 30 && deltaSeconds >= -30) {
+      if (deltaSeconds <= 5 && deltaSeconds >= -5) {
         dueAssignments.add(assignment);
       }
     }
@@ -97,6 +133,26 @@ class ReminderService extends ChangeNotifier {
         content: Text(
           '"${assignment.title}" is due on ${assignment.dueDateLabel(context)}.',
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showInfoDialog({required String title, required String message}) {
+    final navigator = _navigatorKey.currentState;
+    final context = navigator?.overlay?.context;
+    if (context == null) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),

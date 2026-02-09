@@ -6,12 +6,31 @@ class AttendanceIndicator extends StatelessWidget {
   const AttendanceIndicator({
     super.key,
     required this.percentage,
+    this.hasRecordedAttendance = true,
   });
 
   final double percentage;
+  final bool hasRecordedAttendance;
 
   @override
   Widget build(BuildContext context) {
+    if (!hasRecordedAttendance) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.info_outline, color: AluColors.primary),
+          const SizedBox(width: 8),
+          Text(
+            'N/A',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: AluColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
+      );
+    }
+
     final isLow = percentage < 75;
     final color = isLow ? AluColors.danger : AluColors.success;
 
