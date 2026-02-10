@@ -52,6 +52,6 @@ It helps you keep up with assignments, plan academic sessions, and track attenda
 - **Attendance math:** we compute attendance from sessions that are actually marked Present/Absent; until then we show `N/A`.
 
 ## Contribution
-- Branch: `feature/<name>`
+- Branch: Create a branch `feature/<name>` e.g `feature/homescreen`
 - Commit style: Conventional commits
 - Run `flutter format .` before pushing
