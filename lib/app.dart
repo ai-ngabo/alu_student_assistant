@@ -15,8 +15,6 @@ import 'shared/state/app_state_scope.dart';
 import 'shared/theme/colors.dart';
 import 'shared/theme/text_styles.dart';
 
-
-
 /// Root widget that wires together:
 /// - Theme (ALU colors)
 /// - Global app state (`AppStateScope`)

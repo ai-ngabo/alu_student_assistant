@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 
 import '../../shared/state/app_state_scope.dart';
 import '../../shared/theme/colors.dart';

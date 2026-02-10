@@ -11,7 +11,7 @@ class DatePickerField extends StatelessWidget {
     required this.onChanged,
     this.firstDate,
     this.lastDate,
-    this.validator, // ADD THIS
+    this.validator,
   });
 
   final String label;
@@ -19,7 +19,9 @@ class DatePickerField extends StatelessWidget {
   final void Function(DateTime? date) onChanged;
   final DateTime? firstDate;
   final DateTime? lastDate;
-  final String? Function(DateTime?)? validator; // ADD THIS
+
+  /// Optional validation message (shown under the field).
+  final String? Function(DateTime?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,7 @@ class DatePickerField extends StatelessWidget {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: label,
-          errorText: validator?.call(value), // ADD THIS for validation
+          errorText: validator?.call(value),
         ),
         child: Text(value == null ? 'Select date' : formatShortDate(value!)),
       ),
@@ -52,13 +54,15 @@ class TimePickerField extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onChanged,
-    this.validator, // ADD THIS
+    this.validator,
   });
 
   final String label;
   final TimeOfDay? value;
   final void Function(TimeOfDay time) onChanged;
-  final String? Function(TimeOfDay?)? validator; // ADD THIS
+
+  /// Optional validation message (shown under the field).
+  final String? Function(TimeOfDay?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +78,7 @@ class TimePickerField extends StatelessWidget {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: label,
-          errorText: validator?.call(value), // ADD THIS for validation
+          errorText: validator?.call(value),
         ),
         child: Text(value == null ? 'Select time' : value!.format(context)),
       ),

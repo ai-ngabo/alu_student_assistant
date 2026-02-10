@@ -172,7 +172,7 @@ class _SessionFormScreenState extends State<SessionFormScreen> {
                   CustomButton(
                     text: isEdit ? 'Save Changes' : 'Create Session',
                     onPressed: _submit,
-                    icon: isEdit ? Icons.save : Icons.add, // ADD THIS LINE
+                    icon: isEdit ? Icons.save : Icons.add,
                   ),
                   if (isEdit) ...[
                     const SizedBox(height: 12),
