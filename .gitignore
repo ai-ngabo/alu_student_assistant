@@ -4,7 +4,10 @@
 .pub-cache/
 build/
 pubspec.lock
+.flutter-plugins-dependencies
 
 # IDE
 .idea/
 .vscode/
+
+FETCH_HEAD
