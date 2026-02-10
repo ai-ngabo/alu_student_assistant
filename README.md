@@ -43,7 +43,7 @@ It helps you keep up with assignments, plan academic sessions, and track attenda
 
 ## Data persistence (current)
 - **Assignments**: persisted with `shared_preferences` as JSON (`AssignmentRepository`).
-- **Sessions + attendance**: in-memory only for now.
+- **Sessions + attendance**: persisted with `shared_preferences` as JSON (`SessionRepository`). Attendance is stored inside each session record.
 
 ## Architecture Notes (What to explain in the demo)
 - **Single source of truth:** `AppState` owns the lists + rules (sorting/filtering/attendance %).

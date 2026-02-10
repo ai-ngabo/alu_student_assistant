@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../../features/assignments/assignment_model.dart';
 import '../../features/assignments/assignment_repository.dart';
 import '../../features/sessions/session_model.dart';
+import '../../features/sessions/session_repository.dart';
 import '../../utils/date_helpers.dart';
 
 /// Central in-memory state for the app.
@@ -14,7 +15,7 @@ import '../../utils/date_helpers.dart';
 ///
 /// Persistence note:
 /// - Assignments are currently persisted via [AssignmentRepository].
-/// - Sessions are still in-memory only (no session repository yet).
+/// - Sessions (including attendance) are persisted via [SessionRepository].
 class AppState extends ChangeNotifier {
   final List<Assignment> _assignments = [];
   final List<AcademicSession> _sessions = [];
@@ -23,6 +24,10 @@ class AppState extends ChangeNotifier {
   ///
   /// Kept behind a repository so we can swap it later (e.g., SQLite).
   final AssignmentRepository _assignmentRepo = AssignmentRepository();
+
+  /// Persistence layer for sessions (SharedPreferences JSON).
+  /// Sessions include attendance, so this also persists attendance.
+  final SessionRepository _sessionRepo = SessionRepository();
 
   /// True while loading persisted data at startup.
   bool _isLoading = false;
@@ -42,12 +47,13 @@ class AppState extends ChangeNotifier {
 
   /// Clears demo data in a way that matches what the user sees.
   ///
-  /// - Clears in-memory sessions/attendance
-  /// - Clears persisted assignments and reloads
+  /// - Clears persisted assignments + sessions
+  /// - Clears in-memory copies
   Future<void> resetDemoData() async {
     _sessions.clear();
     _assignments.clear();
     await _assignmentRepo.clearAll();
+    await _sessionRepo.clearAll();
     notifyListeners();
   }
 
@@ -66,8 +72,10 @@ class AppState extends ChangeNotifier {
       _assignments.clear();
       _assignments.addAll(loadedAssignments);
 
-      // Sessions will be loaded later when a session repository is created.
-      // For now, sessions are in-memory only.
+      // Load sessions (includes attendance).
+      final loadedSessions = await _sessionRepo.loadSessions();
+      _sessions.clear();
+      _sessions.addAll(loadedSessions);
 
     } catch (e) {
       debugPrint('Error loading data: $e');
@@ -172,32 +180,39 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Session methods (without persistence for now - teammates will add repository)
-  /// Adds a session (in-memory only for now).
-  void addSession(AcademicSession session) {
+  // Session methods with persistence
+  /// Adds a session and persists the full list.
+  Future<void> addSession(AcademicSession session) async {
     _sessions.add(session);
+    await _sessionRepo.saveSessions(_sessions);
     notifyListeners();
   }
 
-  /// Updates a session (in-memory only for now).
-  void updateSession(AcademicSession updated) {
+  /// Updates a session and persists the full list.
+  Future<void> updateSession(AcademicSession updated) async {
     final index = _sessions.indexWhere((s) => s.id == updated.id);
     if (index == -1) return;
     _sessions[index] = updated;
+    await _sessionRepo.saveSessions(_sessions);
     notifyListeners();
   }
 
-  /// Removes a session (in-memory only for now).
-  void removeSession(String id) {
+  /// Removes a session and persists the full list.
+  Future<void> removeSession(String id) async {
     _sessions.removeWhere((s) => s.id == id);
+    await _sessionRepo.saveSessions(_sessions);
     notifyListeners();
   }
 
   /// Records attendance for a session (Present/Absent/Not set).
-  void setSessionAttendance(String sessionId, AttendanceStatus? status) {
+  Future<void> setSessionAttendance(
+    String sessionId,
+    AttendanceStatus? status,
+  ) async {
     final index = _sessions.indexWhere((s) => s.id == sessionId);
     if (index == -1) return;
     _sessions[index] = _sessions[index].copyWith(attendance: status);
+    await _sessionRepo.saveSessions(_sessions);
     notifyListeners();
   }
 }

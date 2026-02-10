@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 import '../../shared/state/app_state_scope.dart';
 import '../../shared/theme/colors.dart';
@@ -84,9 +85,12 @@ class _AttendanceTile extends StatelessWidget {
               ),
             ],
             selected: status == null ? <AttendanceStatus>{} : {status},
-            onSelectionChanged: (set) => AppStateScope.of(
-              context,
-            ).setSessionAttendance(session.id, set.isEmpty ? null : set.first),
+            onSelectionChanged: (set) => unawaited(
+              AppStateScope.of(context).setSessionAttendance(
+                session.id,
+                set.isEmpty ? null : set.first,
+              ),
+            ),
           ),
           leading: Container(
             width: 10,

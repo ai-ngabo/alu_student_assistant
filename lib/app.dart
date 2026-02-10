@@ -128,7 +128,7 @@ class _HomeShellState extends State<_HomeShell> {
         MaterialPageRoute(builder: (_) => const SessionFormScreen()),
       );
       if (!mounted || created == null) return;
-      state.addSession(created);
+      await state.addSession(created);
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 import '../../shared/state/app_state_scope.dart';
 import '../../shared/theme/colors.dart';
@@ -30,7 +31,7 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
       MaterialPageRoute(builder: (_) => SessionFormScreen(initial: session)),
     );
     if (!mounted || updated == null) return;
-    AppStateScope.of(context).updateSession(updated);
+    unawaited(AppStateScope.of(context).updateSession(updated));
   }
 
   void _deleteSession(AcademicSession session) {
@@ -47,7 +48,7 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              AppStateScope.of(context).removeSession(session.id);
+              unawaited(AppStateScope.of(context).removeSession(session.id));
             },
             child: const Text(
               'Remove',
@@ -113,7 +114,7 @@ class _SessionScheduleScreenState extends State<SessionScheduleScreen> {
             onEdit: _editSession,
             onDelete: _deleteSession,
             onAttendanceChanged: (id, status) =>
-                state.setSessionAttendance(id, status),
+                unawaited(state.setSessionAttendance(id, status)),
           );
         }),
         const SizedBox(height: 24),
